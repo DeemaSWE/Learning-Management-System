@@ -11,18 +11,19 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class CourseService {
     ArrayList<Course> courses = new ArrayList<>();
-    private final StudentService studentService;
 
     public ArrayList<Course> getCourses() {
         return courses;
     }
 
     public void addCourse(Course student) {
+
         courses.add(student);
     }
 
     public boolean updateCourse(String id, Course updatedCourse) {
         Course course = getCourseById(id);
+
         if (course == null)
             return false;
 
@@ -47,23 +48,53 @@ public class CourseService {
         if (course == null)
             return -1;
 
-        int finalExamWeight = course.getFinalExamWeight() / 100; // Convert percentage to decimal
-
-        double requiredFinalExamGrade = (desiredGrade - (currentGrade * (1 - finalExamWeight))) / course.getFinalExamWeight();
+        double finalExamWeight = course.getFinalExamWeight() / 100.0;
+        double currentWeight = 1 - finalExamWeight;
+        double requiredFinalExamGrade = (desiredGrade - (currentWeight * currentGrade)) / finalExamWeight;
 
         return requiredFinalExamGrade;
     }
 
-    // Search for course based on instructor name (assuming a field for instructor name exists in Course model)
+    // Get a list of courses by credit hours range
+    public ArrayList<Course> getCoursesByCreditHoursRange(int minCreditHours, int maxCreditHours) {
+        ArrayList<Course> list = new ArrayList<>();
+
+        for (Course course : courses) {
+            if (course.getCreditHours() >= minCreditHours && course.getCreditHours() <= maxCreditHours)
+                list.add(course);
+        }
+
+        return list;
+    }
+
+    // Calculate the average credit hours for courses in a department
+    public double calculateAverageCreditHoursForDepartment(String department) {
+        double creditHoursSum = 0.0;
+        int courseCount = 0;
+
+        for (Course course : courses) {
+            if (course.getDepartment().equalsIgnoreCase(department)) {
+                creditHoursSum += course.getCreditHours();
+                courseCount++;
+            }
+        }
+
+        if (courseCount == 0)
+            return -1;
+
+        return creditHoursSum / courseCount;
+    }
+
+    // Get a list of courses based on instructor name
     public ArrayList<Course> getCoursesByInstructor(String instructorName) {
-        ArrayList<Course> CoursesByInstructor = new ArrayList<>();
+        ArrayList<Course> list = new ArrayList<>();
 
         for (Course course : courses) {
             if (course.getInstructor().equals(instructorName)) {
-                CoursesByInstructor.add(course);
+                list.add(course);
             }
         }
-        return CoursesByInstructor;
+        return list;
     }
 
     public Course getCourseById(String courseId) {
@@ -74,6 +105,5 @@ public class CourseService {
         }
         return null;
     }
-
 
 }

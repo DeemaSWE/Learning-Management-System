@@ -5,8 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Map;
+
 
 @Data
 @AllArgsConstructor
@@ -35,17 +34,15 @@ public class Student {
     @NotNull(message = "GPA cannot be empty")
     @Min(value = 0, message = "GPA must be between 0 and 5")
     @Max(value = 5, message = "GPA must be between 0 and 5")
-    private Integer gpa;
+    private Double gpa;
 
     @NotEmpty(message = "Major cannot be empty")
-    @Size(min = 3, max = 20, message = "Major must be between 3 and 20 characters")
+    @Size(min = 2, max = 20, message = "Major must be between 2 and 20 characters")
     private String major;
 
+    @PastOrPresent
     private LocalDate enrollmentDate;
 
     private boolean isGraduated;
-
-    @Positive
-    private int currentLevel;
 
 }

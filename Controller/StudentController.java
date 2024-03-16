@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +26,6 @@ public class StudentController {
 
     @PostMapping("/add")
     public ResponseEntity addStudent(@RequestBody @Valid Student student, Errors errors){
-
         if(errors.hasErrors())
             return ResponseEntity.status(400).body(errors.getFieldError().getDefaultMessage());
 
@@ -37,7 +35,6 @@ public class StudentController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity updateStudent(@PathVariable String id, @RequestBody @Valid Student student, Errors errors){
-
         if(errors.hasErrors())
             return ResponseEntity.status(400).body(errors.getFieldError().getDefaultMessage());
 
@@ -51,7 +48,6 @@ public class StudentController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity deleteStudent(@PathVariable String id){
-
         boolean isDeleted = studentService.deleteStudent(id);
 
         if(isDeleted)
@@ -60,27 +56,47 @@ public class StudentController {
         return ResponseEntity.status(400).body(new ApiResponse("No student found"));
     }
 
-    // Get 10 top performing students for a specified major based on the gpa
-    @GetMapping("/top10/{major}")
+    // Get Top 10 Students with the highest gpa for a specified major
+    @GetMapping("/top-10/{major}")
     public ResponseEntity getTopStudents(@PathVariable String major) {
-
         List<Student> students = studentService.getTopStudents(major);
+
+        if(students.isEmpty())
+            return ResponseEntity.status(400).body(new ApiResponse("No student found for the specified major"));
+
         return ResponseEntity.status(200).body(students);
     }
 
-    // Get the average gpa for a specified major
-    @GetMapping("/students/average-gpa/{major}")
+    // Calculates the average gpa for students for a specified major
+    @GetMapping("/average-gpa/{major}")
     public ResponseEntity getAverageGpa(@PathVariable String major) {
-
         double avgGpa = studentService.getAverageGpa(major);
+
+        if(avgGpa == -1)
+            return ResponseEntity.status(400).body(new ApiResponse("No students found for the specified major"));
+
         return ResponseEntity.status(200).body(avgGpa);
     }
 
-    // Get a list of students that will graduate this semester
-    @GetMapping("/graduating/{major}/{majorDuration}")
-    public ResponseEntity getGraduatingStudents(@PathVariable String major) {
+    // Get a list of students who have exceeded the expected number of years for their major and are graduating late
+    @GetMapping("/late/{major}/{years}")
+    public ResponseEntity getLateStudent(@PathVariable String major, @PathVariable int years) {
+        ArrayList<Student> students = studentService.getLateStudent(major, years);
 
-        ArrayList<Student> students = studentService.getGraduatingStudents(major);
+        if(students.isEmpty())
+            return ResponseEntity.status(400).body(new ApiResponse("No student found"));
+
+        return ResponseEntity.status(200).body(students);
+    }
+
+    // Get a list of students within the specified age range
+    @GetMapping("/get-by-age/{minAge}/{maxAge}")
+    public ResponseEntity getStudentsByAgeRange(@PathVariable("minAge") Integer minAge, @PathVariable("maxAge") Integer maxAge) {
+        ArrayList<Student> students = studentService.getStudentsByAgeRange(minAge, maxAge);
+
+        if(students.isEmpty())
+            return ResponseEntity.status(400).body(new ApiResponse("No students found within the specified age range"));
+
         return ResponseEntity.status(200).body(students);
     }
 

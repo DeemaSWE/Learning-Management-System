@@ -18,7 +18,10 @@ public class Grade {
     @Size(min = 3, message = "Id must be at least 3 characters")
     private String courseId;
 
-    @Min(0)
-    @Max(100)
-    private double grade;
+    @Min(value = 0, message = "Grade must be between 0 and 100")
+    @Max(value = 100, message = "Grade must be between 0 and 100")
+    private Double numericGrade;
+
+    @Pattern(regexp = "[ABCDF]", message = "Grade must be A, B, C, D, and F only")
+    private String letterGrade;
 }
